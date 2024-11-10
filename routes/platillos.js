@@ -7,8 +7,7 @@ const router = express.Router();
 
 // Ruta para guardar un platillo con imagen
 router.post("/guardar", async (req, res) => {
-    const { nombre, descripcion, categoria_id, precio } = req.body;
-    const imagen = req.file ? req.file.filename : null; // Nombre del archivo de imagen, si se subió una
+    const { nombre, descripcion, categoria_id, precio, imagen} = req.body;
 
     const query = 'INSERT INTO platillos(nombre, descripcion, categoria_id, precio, imagen) VALUES (?, ?, ?, ?, ?)';
 
@@ -37,16 +36,10 @@ router.get("/listar", async (req, res) => {
 
 // Ruta para actualizar un platillo
 router.put("/actualizar", async (req, res) => {
-    const { id, nombre, descripcion, categoria_id, precio } = req.body;
-    const imagen = req.file ? req.file.filename : null; // Nombre de la nueva imagen, si se sube
+    const { id, nombre, descripcion, categoria_id, precio, imagen} = req.body;
 
-    let query = 'UPDATE platillos SET nombre=?, descripcion=?, categoria_id=?, precio=? WHERE id=?';
-    let params = [nombre, descripcion, categoria_id, precio, id];
-
-    if (imagen) {
-        query = 'UPDATE platillos SET nombre=?, descripcion=?, categoria_id=?, precio=?, imagen=? WHERE id=?';
-        params = [nombre, descripcion, categoria_id, precio, imagen, id];
-    }
+    let query = 'UPDATE platillos SET nombre=?, descripcion=?, categoria_id=?, precio=?, imagen=? WHERE id=?';
+    let params = [nombre, descripcion, categoria_id, precio, imagen, id];
 
     try {
         const [result] = await pool.query(query, params);
@@ -63,6 +56,7 @@ router.put("/actualizar", async (req, res) => {
 });
 
 // Ruta para eliminar un platillo
+
 router.delete("/eliminar/:id", async (req, res) => {
     const id = req.params.id;
 
