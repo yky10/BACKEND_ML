@@ -27,6 +27,21 @@ router.post("/create", async (req, res) => {
         res.status(500).send("Error del servidor");
     }
 });
+router.get("/obtenerpersona", async (req, res) => {
+    try {
+        const [result] = await pool.query(`
+            SELECT p.*
+            FROM persona p
+            LEFT JOIN usuarios u ON p.id = u.id_persona
+            WHERE u.id_usuario IS NULL
+        `);
+        
+        res.send(result);
+    } catch (err) {
+        console.error( `Error al obtener personas: ${err} `);
+        res.status(500).send("Error al obtener personas");
+    }
+});
 
 /*Consulta que se muestra en la tabla de empleados.  */
 router.get("/obtenerlistapersonas", async (req, res) => {
