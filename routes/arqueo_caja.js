@@ -8,13 +8,13 @@ router.get("/arqueo-caja/:fecha", async (req, res) => {
 
     try {
         const query = `
-            SELECT o.id AS ordenId, o.total, d.platillo_id, d.cantidad, p.nombre AS nombrePlatillo
-            FROM ordenes o
-            JOIN detalles_orden d ON o.id = d.orden_id
-            JOIN platillos p ON d.platillo_id = p.id
-            WHERE DATE(o.fecha_orden) = ?
-            AND o.estado = 'entregado';
-        `;
+        SELECT o.id AS ordenId, o.total, d.platillo_id, d.cantidad, p.nombre AS nombrePlatillo
+        FROM ordenes o
+        JOIN detalles_orden d ON o.id = d.orden_id
+        JOIN platillos p ON d.platillo_id = p.id
+        WHERE DATE(o.fecha_orden) = ?
+        AND o.estado IN ('entregado', 'facturado');
+    `;
 
         const [result] = await pool.query(query, [fecha]);
 
@@ -24,10 +24,9 @@ router.get("/arqueo-caja/:fecha", async (req, res) => {
                 message: "No se encontraron órdenes para la fecha especificada."
             });
         }
-
-        // Calcular total de ventas y agrupar detalles por orden
-        const totalVentas = result.reduce((acc, row) => acc + row.total, 0);
-        const totalOrdenes = result.length;
+    
+        const totalOrdenes = new Set(result.map(row => row.ordenId)).size; 
+        const totalVentas = result.reduce((acc, row) => acc + parseFloat(row.total), 0);
 
         // Agrupar detalles por orden
         const ordenes = result.reduce((acc, row) => {
@@ -55,7 +54,7 @@ router.get("/arqueo-caja/:fecha", async (req, res) => {
             totalVentas: totalVentas || 0,
             totalOrdenes: totalOrdenes || 0,
             fecha: fecha,
-            ordenes // Detalles de las órdenes entregadas
+            ordenes 
         });
     } catch (error) {
         console.error("Error al obtener arqueo de caja:", error);

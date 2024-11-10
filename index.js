@@ -13,7 +13,8 @@ const personaRoutes = require('./routes/persona.js');
 const autorizacion = require('./routes/auth.js');
 const facturaRoutes = require('./routes/factura.js');
 const clientesRoutes = require('./routes/clientes.js');
-const reporteRoutes = require('./routes/reporte.js')
+const reporteRoutes = require('./routes/reporte.js');
+const arqueoCajaRoutes = require('./routes/arqueo_caja.js');
 
 require('dotenv').config();
 const app = express();
@@ -71,9 +72,10 @@ app.use('/platillos', platillosRoutes);
 app.use('/mesas', mesaRoutes);
 app.use('/orden', ordenRoutes);
 app.use('/detalle_orden', detalleOrdenRoutes);
-app.use('/factura', facturaRoutes)
-app.use('/cliente', clientesRoutes)
-app.use('/reporte', reporteRoutes)
+app.use('/factura', facturaRoutes);
+app.use('/cliente', clientesRoutes);
+app.use('/reporte', reporteRoutes);
+app.use('/caja', arqueoCajaRoutes);
 
 
 app.listen(PORT, () => {

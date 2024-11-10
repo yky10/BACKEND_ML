@@ -1,26 +1,9 @@
 const express = require('express');
-const pool = require('../config/db'); // importamos la bd
+const pool = require('../config/db'); 
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
-
-// Configuración de almacenamiento con multer
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/'; // Carpeta donde se guardarán las imágenes
-        // Asegurarse de que la carpeta exista, si no, crearla
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath);
-        }
-        cb(null, uploadPath); // Carpeta destino
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)); // Renombrar archivo
-    }
-});
-const upload = multer({ storage: storage });
 
 // Ruta para guardar un platillo con imagen
 router.post("/guardar", upload.single('imagen'), async (req, res) => {

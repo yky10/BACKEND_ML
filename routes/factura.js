@@ -81,9 +81,14 @@ router.post("/guardar", async (req, res) => {
         const orden_id = req.body.orden_id;
         
         const result = await pool.query(
-            'INSERT INTO facturas(cliente_id, orden_id, fecha_factura ) VALUES (?, ?, NOW())',
+            'INSERT INTO facturas(cliente_id, orden_id, fecha_factura) VALUES (?, ?, NOW())',
             [cliente_id, orden_id]
         );
+
+        await pool.query(
+            'UPDATE ordenes SET estado = ? WHERE id = ?',
+            ['facturado', orden_id]
+          );
         
         res.status(201).send(`Factura generada exitosamente con ID: ${result.insertId}`);
     } 
