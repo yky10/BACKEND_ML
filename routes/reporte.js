@@ -150,12 +150,19 @@ router.get('/estadisticas', async (req, res) => {
   
       // Consulta para obtener las últimas 5 órdenes procesadas, incluyendo las mesas
       const queryUltimasOrdenes = `
-        SELECT o.id, o.fecha_orden, o.total, u.username AS mesero, o.estado, o.mesa_id
-        FROM ordenes o
-        JOIN usuarios u ON o.id_usuario = u.id_usuario
-        WHERE o.estado = 'entregado' -- Puedes agregar más estados si deseas
-        ORDER BY o.fecha_orden DESC
-        LIMIT 5;
+    SELECT 
+        o.id, 
+        DATE_FORMAT(o.fecha_orden, '%H:%i:%s') AS hora_orden, 
+        o.total, 
+        u.username AS mesero, 
+        o.estado, 
+        o.mesa_id
+    FROM ordenes o
+    JOIN usuarios u ON o.id_usuario = u.id_usuario
+    WHERE o.estado IN ('pendiente', 'preparando', 'entregado')
+    AND DATE(o.fecha_orden) = CURDATE()
+    ORDER BY o.fecha_orden DESC
+    LIMIT 5;
       `;
   
       // Ejecutar las consultas

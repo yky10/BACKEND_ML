@@ -3,19 +3,32 @@ const pool = require('../config/db'); //importamos la bd
 const router = express.Router();
 
 router.post("/guardar", async (req, res) => {
-    console.log(req.body);
     const nombre = req.body.nombre;
-
     const query = 'INSERT INTO categorias_platillos(nombre) VALUES (?)';
 
     try {
-        // Ejecutar la consulta directamente con el pool
         const [result] = await pool.query(query, [nombre]);
-
-        res.status(201).send(`Categoría guardada exitosamente con ID: ${result.insertId}`);
+        console.log("Categoría guardada exitosamente con ID:", result.insertId);
+        res.status(201).json({ message: `Categoría guardada exitosamente con ID: ${result.insertId}` });
     } catch (err) {
-        console.error(`Error al guardar categoría: ${err}`);
-        res.status(500).send("Error del servidor");
+        // Manejo de errores específico
+        if (err.code === 'ER_DUP_ENTRY') {
+            // Error de clave duplicada
+            console.error("Error: El nombre de la categoría ya existe.");
+            res.status(409).json({ error: "El nombre de la categoría ya existe. Por favor, elige otro nombre." });
+        } else if (err.code === 'ER_BAD_DB_ERROR') {
+            // Error de base de datos no existente
+            console.error("Error: La base de datos no existe.");
+            res.status(500).json({ error: "La base de datos no existe. Por favor, verifica la configuración." });
+        } else if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+            // Error de permisos o acceso denegado
+            console.error("Error: Acceso denegado a la base de datos.");
+            res.status(500).json({ error: "Acceso denegado. Verifica las credenciales de la base de datos." });
+        } else {
+            // Otros errores no específicos
+            console.error("Error desconocido al guardar categoría.");
+            res.status(500).json({ error: "Error del servidor. No se pudo guardar la categoría." });
+        }
     }
 });
 
