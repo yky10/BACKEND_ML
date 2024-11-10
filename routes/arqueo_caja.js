@@ -2,6 +2,7 @@ const express = require('express')
 const pool = require('../config/db');
 const router = express.Router();
 
+
 // Obtener arqueo de caja por fecha con detalles de órdenes
 router.get("/arqueo-caja/:fecha", async (req, res) => {
     const fecha = req.params.fecha;

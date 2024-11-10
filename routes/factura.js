@@ -88,7 +88,7 @@ router.post("/guardar", async (req, res) => {
         await pool.query(
             'UPDATE ordenes SET estado = ? WHERE id = ?',
             ['facturado', orden_id]
-          );
+        );
         
         res.status(201).send(`Factura generada exitosamente con ID: ${result.insertId}`);
     } 

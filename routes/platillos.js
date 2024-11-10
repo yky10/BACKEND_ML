@@ -6,7 +6,7 @@ const fs = require('fs');
 const router = express.Router();
 
 // Ruta para guardar un platillo con imagen
-router.post("/guardar", upload.single('imagen'), async (req, res) => {
+router.post("/guardar", async (req, res) => {
     const { nombre, descripcion, categoria_id, precio } = req.body;
     const imagen = req.file ? req.file.filename : null; // Nombre del archivo de imagen, si se subió una
 
@@ -36,7 +36,7 @@ router.get("/listar", async (req, res) => {
 });
 
 // Ruta para actualizar un platillo
-router.put("/actualizar", upload.single('imagen'), async (req, res) => {
+router.put("/actualizar", async (req, res) => {
     const { id, nombre, descripcion, categoria_id, precio } = req.body;
     const imagen = req.file ? req.file.filename : null; // Nombre de la nueva imagen, si se sube
 
