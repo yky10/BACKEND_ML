@@ -71,28 +71,31 @@ router.get('/ventas-por-platillo', async (req, res) => {
     }
 });
 
-// Ventas por mesa
+// Ventas por mesa 
 router.get('/ventas-por-mesa', async (req, res) => {
     try {
         const query = `
-            SELECT o.mesa_id AS numero_mesa, 
-                   SUM(do.cantidad * p.precio) AS total_ventas
+            SELECT 
+                o.mesa_id AS numero_mesa,
+                YEAR(o.fecha_orden) AS anio,
+                MONTH(o.fecha_orden) AS mes,
+                SUM(do.cantidad * p.precio) AS total_ventas
             FROM ordenes o
             JOIN detalles_orden do ON o.id = do.orden_id
             JOIN platillos p ON do.platillo_id = p.id
             WHERE o.estado = 'entregado'
-            GROUP BY o.mesa_id
-            ORDER BY total_ventas DESC;
+            GROUP BY o.mesa_id, YEAR(o.fecha_orden), MONTH(o.fecha_orden)
+            ORDER BY anio DESC, mes DESC, total_ventas DESC;
         `;
 
-        const [ventasmesa] = await pool.query(query);
+        const [ventasMesaPorMes] = await pool.query(query);
 
         res.status(200).json({
             success: true,
-            reporte: ventasmesa
+            reporte: ventasMesaPorMes
         });
     } catch (error) {
-        console.error("Error al obtener ventas por mesa:", error);
+        console.error("Error al obtener ventas por mesa por mes:", error);
         res.status(500).json({
             success: false,
             message: "Error al obtener reporte",

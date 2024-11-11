@@ -76,23 +76,34 @@ router.get("/listar", async (req, res) => {
 
 router.post("/guardar", async (req, res) => {
     try {
-        console.log(req.body);
+        console.log('Datos recibidos:', req.body);
         const cliente_id = req.body.cliente_id;
         const orden_id = req.body.orden_id;
-        
+
+        // Insertar la factura en la base de datos
         const result = await pool.query(
             'INSERT INTO facturas(cliente_id, orden_id, fecha_factura) VALUES (?, ?, NOW())',
             [cliente_id, orden_id]
         );
 
-        await pool.query(
-            'UPDATE ordenes SET estado = ? WHERE id = ?',
-            ['facturado', orden_id]
-        );
-        
-        res.status(201).send(`Factura generada exitosamente con ID: ${result.insertId}`);
-    } 
-    catch (error) {
+        console.log('Resultado de la inserción:', result); // Verificar el resultado completo
+
+        // Acceder al primer elemento del arreglo result
+        if (result && result[0] && result[0].insertId) {
+            const invoiceId = result[0].insertId; // Ahora accedemos correctamente al insertId
+
+            await pool.query(
+                'UPDATE ordenes SET estado = ? WHERE id = ?',
+                ['facturado', orden_id]
+            );
+
+            // Devolver el ID de la factura al frontend
+            res.status(201).json({ id: invoiceId });
+        } else {
+            console.log("No se pudo obtener insertId");
+            res.status(500).send("Error al generar la factura");
+        }
+    } catch (error) {
         console.log(`Error al generar la factura: ${error}`);
         res.status(500).send("Error del servidor");
     }
